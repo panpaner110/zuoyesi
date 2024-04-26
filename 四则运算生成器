@@ -1,0 +1,98 @@
+#include <string>
+#include <iostream>
+#include <fstream>
+#include <cstdlib>
+#include <ctime>
+#include <vector>
+
+using namespace std;
+
+// 生成随机整数
+int generateRandomInt(int maxNum) {
+    return rand() % maxNum + 1;
+}
+
+// 生成随机小数
+float generateRandomFloat(int maxNum) {
+    return (float)(rand() % maxNum) / 10.0f;
+}
+
+// 生成四则运算题目
+string generateExpression(int maxNum, bool allowDecimal, bool allowBrackets, vector<char> operators) {
+    string expression;
+    int num1, num2;
+    char op1, op2;
+
+    num1 = allowDecimal ? generateRandomFloat(maxNum * 10) : generateRandomInt(maxNum);
+    num2 = allowDecimal ? generateRandomFloat(maxNum * 10) : generateRandomInt(maxNum);
+    op1 = operators[rand() % operators.size()];
+    op2 = operators[rand() % operators.size()];
+
+    expression += to_string(num1) + " " + op1 + " " + to_string(num2);
+
+    if (allowBrackets && rand() % 2 == 0) {
+        expression = "(" + expression + ")";
+    }
+
+    expression += " " + string(1,op2) + " ";
+
+    num1 = allowDecimal ? generateRandomFloat(maxNum * 10) : generateRandomInt(maxNum);
+    num2 = allowDecimal ? generateRandomFloat(maxNum * 10) : generateRandomInt(maxNum);
+
+    expression += to_string(num1) + " " + op2 + " " + to_string(num2);
+
+    return expression;
+}
+
+// 输出到文件
+void outputToFile(string filename, vector<string> expressions) {
+    ofstream outputFile(filename);
+
+    if (outputFile.is_open()) {
+        for (const auto& expression : expressions) {
+            outputFile << expression << endl;
+        }
+        outputFile.close();
+        cout << "题目已成功输出到文件：" << filename << endl;
+    }
+    else {
+        cerr << "无法打开文件：" << filename << endl;
+    }
+}
+
+int main() {
+    srand(time(0));
+
+    int numQuestions, maxNum;
+    bool allowDecimal, allowBrackets;
+    vector<char> operators;
+    vector<string> expressions;
+
+    cout << "请输入题目数量：";
+    cin >> numQuestions;
+    cout << "请输入最大数值：";
+    cin >> maxNum;
+    cout << "是否允许使用小数？(1: 是，0: 否)：";
+    cin >> allowDecimal;
+    cout << "是否允许使用括号？(1: 是，0: 否)：";
+    cin >> allowBrackets;
+
+    char op;
+    cout << "请选择运算符（+ - * /，用空格隔开）：";
+    while (cin >> op) {
+        operators.push_back(op);
+        if (cin.get() == '\n') {
+            break;
+        }
+    }
+
+    for (int i = 0; i < numQuestions; ++i) {
+        expressions.push_back(generateExpression(maxNum, allowDecimal, allowBrackets, operators));
+    }
+
+    // 输出到文件
+    string filename = "math_exercises.txt";
+    outputToFile(filename, expressions);
+
+    return 0;
+}
